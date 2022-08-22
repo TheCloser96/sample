@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+
+<!-- 공통 헤더 -->
+<head th:replace="/fragment/header :: header"></head>
+
+<!-- 위직스(Toast ui) CDN -->
+<head>
+    <script src="https://uicdn.toast.com/editor/latest/toastui-editor-viewer.js"></script>
+    <link rel="stylesheet" href="https://uicdn.toast.com/editor/latest/toastui-editor-viewer.min.css" />
+</head>
+
+
+<body>
+<div class="container-fluid position-relative d-flex p-0">
+
+    <!-- 공통 스피너 -->
+    <div th:replace="/fragment/spinner :: spinner"></div>
+
+    <!-- 공통 사이드 바 -->
+    <div th:replace="/fragment/sidebar :: sidebar"></div>
+
+
+    <!-- Content Start -->
+    <div class="content">
+        <!-- 공통 네비게이션 바 -->
+        <nav th:replace="/fragment/navbar :: navbar"></nav>
+        <!-- 게시판(시작) -->
+        <div th:object="${boardViewDto}" class="container-fluid pt-4 px-4">
+            <div class="row g-4">
+                <div class="col-12">
+                    <div class="bg-secondary rounded h-100 p-4">
+                        <!-- 제목 -->
+                        <h6 th:text="${boardViewDto.getBoardTitle}" class="mb-4"></h6>
+                        <!-- 게시물 게시 시간 -->
+                        <div class="d-flex align-items-center border-bottom py-3">
+                            <div class="w-100 ms-3">
+                                <div th:if="${boardViewDto.getFirstRecordTime.equals(boardViewDto.getModifyRecordTime)}" class="d-flex w-100 justify-content-between">
+                                    <small th:text="${boardViewDto.getModifyRecordTime}"></small>
+                                </div>
+                                <div th:unless="${boardViewDto.getFirstRecordTime.equals(boardViewDto.getModifyRecordTime)}" class="d-flex w-100 justify-content-between">
+                                    <small th:text="'(수정됨) '+${boardViewDto.getModifyRecordTime}"></small>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- 게시물 -->
+                        <input id="boardNumber" th:value="${boardViewDto.getBoardNumber}" style="display:none">  <!-- 해당 게시판의 번호 -->
+                        <input id="contents" th:value="${boardViewDto.getBoardContents}" style="display:none">  <!-- 해당 사용자의 게시물 -->
+                        <div id="viewer"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- 게시판(종료) -->
+        <!-- 해당 게시글 관련 댓글 조회 및 댓글 작성란(시작) -->
+        <div class="container-fluid pt-4 px-4">
+            <div class="row g-4">
+                <div class="col-12">
+                    <div class="bg-secondary rounded h-100 p-4">
+                        <h6 class="mb-4">댓글</h6>
+                        <!-- 유저들이 남긴 댓글들(시작) -->
+                        <div id="commentsList">
+                            <!-- 숨김 데이터 항목(시작) -->
+                            <input type="hidden" id="size" name="size" th:value="${commentsDto.size}">
+                            <input type="hidden" id="pageNumber" name="pageNumber" th:value="${commentsDto.pageNumber}">
+                            <input type="hidden" id="hasNext" name="hasNext" th:value="${commentsDto.hasNext}">
+                            <!-- 숨김 데이터 항목(종료) -->
+                            <div th:each="comments : ${commentsDto.list}">
+                                <div class="d-flex align-items-center border-bottom py-3">
+                                    <div class="w-100 ms-3">
+                                        <div class="d-flex w-100 justify-content-between">
+                                            <h6 th:text="${comments.getAccount.getNick}" class="mb-0"></h6>
+                                            <small th:text="${comments.getRecordTime}"></small>
+                                        </div>
+                                        <span th:text="${comments.getComments}"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- 유저들이 남긴 댓글들(종료) -->
+                        <!-- 댓글 작성란(로그인된 사용자들만 작성이 가능) -->
+                        <div th:if="${session.LOGIN_MEMBER != null}" class="form-floating">
+                            <textarea class="form-control" placeholder="Leave a comment here" id="commentsBox" style="height: 100px;"></textarea>
+                            <label for="commentsBox">댓글 작성 후 수정이 불가하니 신중히 작성 바랍니다</label>
+                        </div>
+                        <!-- 항목 버튼(시작) -->
+                        <form id="commentsSearch" th:object="${commentDto}">
+                            <!-- 숨김 데이터 항목(시작) -->
+<!--                            <input type="hidden" id="size" name="size" th:value="${commentsDto.size}">-->
+<!--                            <input type="hidden" id="pageNumber" name="pageNumber" th:value="${commentsDto.pageNumber}">-->
+<!--                            <input type="hidden" id="hasNext" name="hasNext" th:value="${commentsDto.hasNext}">-->
+                            <!-- 숨김 데이터 항목(종료) -->
+                            <div class="btn-toolbar" role="toolbar">
+                                <div class="btn-group me-2" role="group" aria-label="First group">
+                                    <button id="backBtn" type="button" onclick="beforeBtn()" class="btn btn-primary"> < </button>
+                                    <button id="nextBtn" type="button" onclick="AfterBtn()" class="btn btn-primary"> > </button>
+                                </div>
+                            </div>
+                        </form>
+                        <!-- 항목 버튼(종료) -->
+                        <!-- 댓글 작성 버튼(로그인된 사용자들만 작성이 가능) -->
+                        <button th:if="${session.LOGIN_MEMBER != null}" id="commentsBtn" type="button" class="btn btn-info m-2">댓글 작성</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- 해당 게시글 관련 댓글 조회 및 댓글 작성란(종료) -->
+        <!-- 공통 풋터 -->
+        <div th:replace="/fragment/footer :: footer"></div>
+    </div>
+    <!-- Content End -->
+
+</div>
+
+
+<!-- 공통 스크립트 라이브러리 모음 -->
+<th:block th:replace="/fragment/scripts :: scripts"></th:block>
+
+
+<script>
+    //Toast ui 관련한 스크립트 파트(시작)
+
+    var contents = $('#contents').val();
+
+    const Viewer = toastui.Editor;
+
+	const viewer = new Viewer({
+      el: document.querySelector('#viewer'),
+      height: '600px',
+      initialValue: contents,
+      theme: 'dark'
+    });
+
+    //Toast ui 관련한 스크립트 파트(종료)
+
+
+
+    //commentsBtn버튼 클릭시 작동(시작)
+
+    $('#commentsBtn').click(function(){
+
+        //특정한 값들을 가져오기
+
+        var comments = $('#commentsBox').val(); //작성된 댓글을 가져옴
+        var boardNumber = $('#boardNumber').val();  //해당 게시판 번호
+
+        //ajax를 이용하여 작성된 댓글을 해당 경로로 보냄
+        $.ajax({
+            url : '/uploadComments',
+            type : 'post',
+            data : {
+                'boardNumber' : boardNumber,
+                'comments' : comments
+            },
+            success : function(data) {
+                alert(data);
+                location.reload(true);   //댓글 작성 성공시 새로고침(서버통신)
+            },
+            error : function() {
+                alert("error");
+            }
+        });
+
+    });
+
+    //commentsBtn버튼 클릭시 작동(종료)
+
+
+
+    //댓글 페이지 버튼 클릭시 작동(시작)
+
+
+    function beforeBtn() {
+        var pageNumber = $('#pageNumber').val();
+        if(pageNumber > 0) {
+            var toPage = false;
+            paging(toPage);
+        }
+    }
+
+    function AfterBtn() {
+        var hasNext = $('#hasNext').val();
+        if(hasNext == "true") {
+            var toPage = true;
+            paging(toPage);
+        }
+    }
+
+
+    function paging(toPage) {
+
+        var boardNumber = $('#boardNumber').val();  //해당 게시판 번호
+        var pageNumber = $('#pageNumber').val();  //현재 댓글 페이지 번호
+        var size = $('#size').val();    //해당 페이지 댓글 최대 수
+
+        //ajax를 이용하여 댓글 조회 버튼 조작시 관련한 정보들을 전달
+        $.ajax({
+            url : '/updateCommentsIndex',
+            type : 'post',
+            data : {
+                'boardId' : boardNumber,
+                'pageNumber' : pageNumber,
+                'size' : size,
+                'toPage' : toPage
+            }
+        }).done(function(fragment) {
+            $('#commentsList').replaceWith(fragment);
+        });
+    }
+
+    //댓글 페이지 버튼 클릭시 작동(종료)
+
+</script>
+
+</body>
+
+</html>
+
+<!--게시물을 볼 수 있음(댓글 포함) 댓글은 로그인한 사람만 가능함-->

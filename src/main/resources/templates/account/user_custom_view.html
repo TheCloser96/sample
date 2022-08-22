@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+
+<!-- 공통 헤더 -->
+<head th:replace="/fragment/header :: header"></head>
+
+<body>
+<div class="container-fluid position-relative d-flex p-0">
+
+    <!-- 공통 스피너 -->
+    <div th:replace="/fragment/spinner :: spinner"></div>
+
+    <!-- 공통 사이드 바 -->
+    <div th:replace="/fragment/sidebar :: sidebar"></div>
+
+
+    <!-- Content Start -->
+    <div class="content">
+
+        <!-- 공통 네비게이션 바 -->
+        <nav th:replace="/fragment/navbar :: navbar"></nav>
+
+        <!-- 사용자 닉네임 조회 및 변경 칸 -->
+        <div class="container-fluid pt-4 px-4">
+            <div class="row g-4">
+                <div class="col-12">
+                    <div class="bg-secondary rounded h-100 p-4">
+                        <h6 class="mb-4">닉네임</h6>
+                        <!-- 닉네임 조회 및 수정 판 -->
+                        <input th:value="${nick}" id="inputNick" class="form-control mb-3" type="text" aria-label="default input example">
+                        <!-- 닉네임 변경 버튼(버튼 클릭해야 적용됨) -->
+                        <button type="button" class="btn btn-info m-2" onclick="changeNick()">닉네임 변경</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- 사용자가 게시한 게시물 목록(시작) -->
+        <div class="container-fluid pt-4 px-4">
+            <div class="row g-4">
+                <div class="col-12">
+                    <div id="aboutBoard" class="bg-secondary rounded h-100 p-4">
+                        <h6 class="mb-4">게시물 목록</h6>
+                        <!-- 게시물 목록 -->
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">번호</th>
+                                        <th scope="col">제목</th>
+                                        <th scope="col">작성자</th>
+                                        <th scope="col">작성일</th>
+                                    </tr>
+                                </thead>
+                                <!--onclick 나중에 수정할것-->
+                                <tbody>
+                                    <tr th:each="data : ${userBoardDto.getBoardList}" th:onclick="|location.href='@{/boardmodify(number=${data.getId()})}'|">
+                                        <th th:text="${data.getId()}" scope="row"></th>
+                                        <td th:text="${data.getTitle()}"></td>
+                                        <td th:text="${data.getAccount().getNick()}"></td>
+                                        <td th:text="${data.getModifyRecordTime()}"></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <!-- 항목 버튼(시작) -->
+                        <div class="btn-toolbar" role="toolbar">
+                            <input id="boardListSize" type="hidden" th:value="${userBoardDto.getBoardList.size}">
+                            <div th:each="number : ${userBoardDto.getBoardIndexBlock}" class="btn-group me-2" role="group" aria-label="First group">
+                                <button th:text="${number}" type="button" class="btn btn-primary" onclick="boardPaging(this)"></button>
+                            </div>
+                        </div>
+                        <!-- 항목 버튼(종료) -->
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- 사용자가 게시한 게시물 목록(종료) -->
+
+
+        <!-- 사용자가 작성한 댓글 목록(시작) -->
+        <div class="container-fluid pt-4 px-4">
+            <div class="row g-4">
+                <div class="col-12">
+                    <div class="bg-secondary rounded h-100 p-4">
+                        <h6 class="mb-4">댓글 목록</h6>
+                        <div id="aboutComment">
+                            <input id="checkNext" type="hidden" th:value="${userCommentDto.getCommentHasNext}">
+                            <input id="commentPageNumber" type="hidden" th:value="${userCommentDto.getCommentIndexNumber}">
+                            <div th:each="comments : ${userCommentDto.getCommentList}">
+                                <div class="d-flex align-items-center border-bottom py-3">
+                                    <div class="w-100 ms-3">
+                                        <div class="d-flex w-100 justify-content-between">
+                                            <h6 th:text="${comments.getBoard.getTitle}" class="mb-0"></h6>
+                                            <small th:text="${comments.getRecordTime}"></small>
+                                        </div>
+                                        <span th:text="${comments.getComments}"></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- 항목 버튼 -->
+                            <div class="btn-toolbar" role="toolbar">
+                                <div class="btn-group me-2" role="group" aria-label="First group">
+                                    <button type="button" class="btn btn-primary" onclick="beforeBtn()"><</button>
+                                    <button type="button" class="btn btn-primary" onclick="AfterBtn()">></button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- 사용자가 작성한 댓글 목록(종료) -->
+
+
+
+        <!-- 공통 풋터 -->
+        <div th:replace="/fragment/footer :: footer"></div>
+
+    </div>
+    <!-- Content End -->
+
+</div>
+
+
+<!-- 공통 스크립트 라이브러리 모음 -->
+<th:block th:replace="/fragment/scripts :: scripts"></th:block>
+
+
+<script>
+
+    //사용자 닉네임 변경할 경우 발생하는 이벤트
+
+    function changeNick() {
+
+        var getNick = $('#inputNick').val();    //사용자가 입력한 닉네임값
+
+        //ajax를 이용하여 새로 변경한 별명을 해당 경로로 보냄
+        $.ajax({
+            url : '/updateNick',
+            type : 'post',
+            data : {
+                'getNick' : getNick
+            },
+            success : function(data) {
+                alert('사용자 닉네임이 변경되었습니다');
+                $('#inputNick').replaceWith(data);
+            },
+            error : function() {
+                alert("error");
+            }
+        });
+    }
+
+
+
+    //게시물 인덱스 블록 버튼 클릭시 발생하는 이벤트
+
+    function boardPaging(clickedPageNumber) {
+
+        var boardListSize = $('#boardListSize').val();  //한 리스트당 개시물의 개수
+        var clickedNum = $(clickedPageNumber).text();   //사용자가 클릭한 버튼의 텍스트 값
+
+        //ajax를 이용하여 새로 변경한 별명을 해당 경로로 보냄
+        $.ajax({
+            url : '/updateUserBoardList',
+            type : 'post',
+            data : {
+                'boardListSize' : boardListSize,
+                'clickedNum' : clickedNum
+            }
+        }).done(function(fragment) {
+            $('#aboutBoard').replaceWith(fragment);
+        });
+    }
+
+
+
+    //댓글 블록 버튼 클릭시 발생하는 이벤트
+
+    function beforeBtn() {
+        //이전 댓글 조회 버튼 클릭할 경우 발생되는 이벤트
+
+        var commentPageNumber = $('#commentPageNumber').val();  //현재 댓글 페이지
+        if(commentPageNumber > 0) {
+            var toPage = false;
+            commentPaging(toPage);
+        }
+    }
+
+    function AfterBtn() {
+        //다음 댓글 조회 버튼 클릭할 경우 발생되는 이벤트
+
+        var checkNext = $('#checkNext').val();  //현재 페이지를 기준으로 다음페이지 여부
+        if(checkNext == "true") {
+            var toPage = true;
+            commentPaging(toPage);
+        }
+    }
+
+    function commentPaging(toPage) {
+        var commentPageNumber = $('#commentPageNumber').val();  //현재 댓글 페이지
+        var checkNext = $('#checkNext').val();  //현재 페이지를 기준으로 다음페이지 여부
+
+        //ajax를 이용하여 댓글 조회 버튼 조작시 관련한 정보들을 전달
+        $.ajax({
+            url : '/updateCommentPaging',
+            type : 'post',
+            data : {
+                'commentPageNumber' : commentPageNumber,
+                'checkNext' : checkNext,
+                'toPage' : toPage
+            }
+        }).done(function(fragment) {
+            $('#aboutComment').replaceWith(fragment);
+        });
+    }
+
+
+</script>
+</body>
+
+</html>

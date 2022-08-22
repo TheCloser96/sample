@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+
+<!-- 공통 헤더 -->
+<head th:replace="/fragment/header :: header"></head>
+
+<body>
+    <div class="container-fluid position-relative d-flex p-0">
+
+        <!-- 공통 스피너 -->
+        <div th:replace="/fragment/spinner :: spinner"></div>
+
+        <!-- 공통 사이드 바 -->
+        <div th:replace="/fragment/sidebar :: sidebar"></div>
+
+
+        <!-- Content Start -->
+        <div class="content">
+
+            <!-- 공통 네비게이션 바 -->
+            <nav th:replace="/fragment/navbar :: navbar"></nav>
+
+            <!-- 게시판 -->
+            <div class="container-fluid pt-4 px-4">
+                <div class="row g-4">
+                    <div class="col-12">
+                        <div class="bg-secondary rounded h-100 p-4">
+                            <h6 class="mb-4">게시판</h6>
+                            <!-- 제목 혹은 사용자를 기준으로 검색(시작) -->
+                            <!-- 검색 입력창 -->
+                            <form id="search" name="search" th:action="@{/main}" method="get">
+                                <input th:value="*{keyword}" id="keyword" name="keyword" class="form-control mb-3" type="text" placeholder="제목을 검색하세요" aria-label="default input example">
+                            </form>
+                            <!-- 제목 혹은 사용자를 기준으로 검색(종료) -->
+                            <!-- 게시물 목록 및 버튼(시작) -->
+                            <div th:object="${boardInfo}">
+                                <div class="table-responsive">
+                                    <table class="table">
+                                        <thead>
+                                            <tr>
+                                                <th scope="col">번호</th>
+                                                <th scope="col">제목</th>
+                                                <th scope="col">작성자</th>
+                                                <th scope="col">작성일</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <!-- 현재 페이지 및 검색정보와 관련한 게시물들 -->
+                                            <tr th:each="data : ${boardInfo.getContents}" th:onclick="|location.href='@{/board(number=${data.getId()})}'|">
+                                                <th th:text="${data.getId()}" scope="row"></th>
+                                                <td th:text="${data.getTitle()}"></td>
+                                                <td th:text="${data.getAccount().getNick()}"></td>
+                                                <td th:text="${data.getModifyRecordTime()}"></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <!-- 게시물 작성 버튼(로그인 되어있는 사용자만 활성화) -->
+                                <button th:if="${session.LOGIN_MEMBER != null}" th:onclick="location.href='/createcontent'" type="button" class="btn btn-info m-2">게시물 작성</button>
+                                <!-- 항목 버튼(게시물의 량에 의해 버튼의 개수가 정해짐) -->
+                                <div class="btn-toolbar" role="toolbar">
+                                    <div th:if="${boardInfo.getTotalPages()-1} == 0" class="btn-group me-2" role="group" aria-label="First group">
+                                        <button type="button" class="btn btn-primary">1</button>
+                                    </div>
+                                    <div th:if="${boardInfo.getTotalPages()-1} == 1" class="btn-group me-2" role="group" aria-label="First group">
+                                        <button th:onclick="|location.href='@{/main(page=0, keyword=${boardInfo.getKeyword})}'|" type="button"  class="btn btn-primary">1</button>
+                                        <button th:onclick="|location.href='@{/main(page=1, keyword=${boardInfo.getKeyword})}'|" type="button" class="btn btn-primary">2</button>
+                                    </div>
+                                    <div th:if="${boardInfo.getTotalPages()-1} > 1" class="btn-group me-2" role="group" aria-label="First group">
+                                        <button th:text="${boardInfo.getFirst()+1}" th:onclick="|location.href='@{/main(page=${boardInfo.getFirst()}, keyword=${boardInfo.getKeyword})}'|" type="button" class="btn btn-primary"></button>
+                                        <button th:text="${boardInfo.getSecond()+1}" th:onclick="|location.href='@{/main(page=${boardInfo.getSecond()}, keyword=${boardInfo.getKeyword})}'|" type="button" class="btn btn-primary"></button>
+                                        <button th:text="${boardInfo.getThird()+1}" th:onclick="|location.href='@{/main(page=${boardInfo.getThird()}, keyword=${boardInfo.getKeyword})}'|" type="button" class="btn btn-primary"></button>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- 게시물 목록 및 버튼(종료) -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- 공통 풋터 -->
+            <div th:replace="/fragment/footer :: footer"></div>
+
+        </div>
+        <!-- Content End -->
+
+    </div>
+
+
+    <!-- 공통 스크립트 라이브러리 모음 -->
+    <th:block th:replace="/fragment/scripts :: scripts"></th:block>
+
+</body>
+
+</html>

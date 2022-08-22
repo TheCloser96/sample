@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<body>
+    <div th:fragment="sidebar" class="sidebar pe-4 pb-3">
+    <nav class="navbar bg-secondary navbar-dark">
+        <a th:href="@{/remain}" class="navbar-brand mx-4 mb-3">
+            <h3 class="text-primary"><i class="fa fa-user-edit me-2"></i>DarkPan</h3>
+        </a>
+        <!-- 로그인 할 경우 닉네임이 보이도록 설정 -->
+        <div th:if="${session.LOGIN_MEMBER != null}" class="d-flex align-items-center ms-4 mb-4">
+            <div class="ms-3">
+                <h6 th:text="${session.LOGIN_MEMBER.getNick}" class="mb-0"></h6>
+            </div>
+        </div>
+        <!-- 로그인, 로그아웃 상태에 따라 다르게 나타나는 사이드바 메뉴 -->
+        <div class="navbar-nav w-100">
+            <!-- 로그아웃 상태 -->
+            <a th:if="${session.LOGIN_MEMBER == null}" th:href="@{/login}" class="nav-item nav-link"><i class="fa fa-laptop me-2"></i>로그인</a>
+            <!-- 로그인 상태 -->
+            <div th:if="${session.LOGIN_MEMBER != null}" class="nav-item dropdown">
+                <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown"><i class="fa fa-laptop me-2"></i>메뉴</a>
+                <div class="dropdown-menu bg-transparent border-0">
+                    <a th:href="@{/usercustom}" class="dropdown-item">마이페이지</a>
+                    <a th:href="@{/logout}" class="dropdown-item">로그아웃</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+    </div>
+</body>
+</html>

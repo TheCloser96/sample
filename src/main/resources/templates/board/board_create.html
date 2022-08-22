@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+
+<!-- 공통 헤더 -->
+<head th:replace="/fragment/header :: header"></head>
+
+<!-- 위직스(Toast ui) CDN -->
+<head>
+    <script src="https://uicdn.toast.com/editor/latest/toastui-editor-all.min.js"></script>
+    <link rel="stylesheet" href="https://uicdn.toast.com/editor/latest/toastui-editor.min.css" />
+</head>
+
+
+<body>
+<div class="container-fluid position-relative d-flex p-0">
+
+    <!-- 공통 스피너 -->
+    <div th:replace="/fragment/spinner :: spinner"></div>
+
+    <!-- 공통 사이드 바 -->
+    <div th:replace="/fragment/sidebar :: sidebar"></div>
+
+
+    <!-- Content Start -->
+    <div class="content">
+        <!-- 공통 네비게이션 바 -->
+        <nav th:replace="/fragment/navbar :: navbar"></nav>
+        <!-- 게시물 작성 및 수정 영역 -->
+        <div class="container-fluid pt-4 px-4">
+            <div class="row g-4">
+                <div class="col-12">
+                    <div class="bg-secondary rounded h-100 p-4">
+                        <h6 class="mb-4">게시물 작성</h6>
+                        <!-- 제목 -->
+                        <input id="title" class="form-control mb-3" type="text" placeholder="제목을 입력하세요" aria-label="default input example">
+                        <!-- 위직스(Toast ui) 뷰어 -->
+                        <div id="editor">
+                            <p>This is some sample content.</p>
+                        </div>
+                        <!-- 제출 버튼 -->
+                        <button id="submitBtn" type="button" class="btn btn-info m-2">게시물 올리기</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 공통 풋터 -->
+        <div th:replace="/fragment/footer :: footer"></div>
+    </div>
+    <!-- Content End -->
+
+</div>
+
+
+<!-- 공통 스크립트 라이브러리 모음 -->
+<th:block th:replace="/fragment/scripts :: scripts"></th:block>
+
+<!-- 위지윅 관련 스크립트 -->
+<script>
+    //Toast ui 관련한 스크립트 파트(시작)
+
+    const Editor = toastui.Editor;
+
+    const editor = new Editor({
+	  el: document.querySelector('#editor'),
+	  height: '600px',
+	  initialEditType: 'WYSIWYG',
+	  previewStyle: 'vertical'
+	});
+
+    //Toast ui 관련한 스크립트 파트(종료)
+
+
+
+    //submitBtn버튼 클릭시 작동(시작)
+
+    $('#submitBtn').click(function(){
+
+        //특정한 값들을 가져오기
+
+        var title = $('#title').val();  //게시할 내용물의 제목
+        var contents = editor.getMarkdown();    //게시할 내용물을 문자열 형태로 가져옴
+
+        //ajax를 이용하여 게시물의 제목과 내용물을 해당 경로로 보냄
+        $.ajax({
+            url : '/uploadContent',
+            type : 'post',
+            data : {
+                title : title,
+                contents : contents
+            },
+            success : function(data) {
+                alert(data);
+                window.location.replace('/main');   //성공시 리다이렉트 방식으로 메인 페이지로 이동한다
+            },
+            error : function() {
+                alert("error");
+            }
+        });
+
+    });
+
+    //submitBtn버튼 클릭시 작동(종료)
+</script>
+
+</body>
+
+</html>
+
+<!--로그인 한 사용자가 새로은 게시물을 작성 혹은 게시물을 작성한 사용자만 접속하여 해당 게시물을 다시 수정해서 올릴수 있음-->

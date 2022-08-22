@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+
+<!-- 공통 헤더 -->
+<head th:replace="/fragment/header :: header"></head>
+
+<!-- 위직스(Toast ui) CDN -->
+<head>
+  <script src="https://uicdn.toast.com/editor/latest/toastui-editor-all.min.js"></script>
+  <link rel="stylesheet" href="https://uicdn.toast.com/editor/latest/toastui-editor.min.css" />
+</head>
+
+
+<body>
+  <div class="container-fluid position-relative d-flex p-0">
+
+    <!-- 공통 스피너 -->
+    <div th:replace="/fragment/spinner :: spinner"></div>
+
+    <!-- 공통 사이드 바 -->
+    <div th:replace="/fragment/sidebar :: sidebar"></div>
+
+
+    <!-- Content Start -->
+    <div class="content">
+      <!-- 공통 네비게이션 바 -->
+      <nav th:replace="/fragment/navbar :: navbar"></nav>
+      <!-- 게시물 작성 및 수정 영역 -->
+      <div class="container-fluid pt-4 px-4">
+        <div class="row g-4">
+          <div class="col-12">
+            <div class="bg-secondary rounded h-100 p-4">
+              <h6 class="mb-4">게시물 작성</h6>
+              <!-- 제목 -->
+              <input id="title" th:value="${beforeBoardInfo.getTitle}" class="form-control mb-3" type="text" placeholder="제목을 입력하세요" aria-label="default input example">
+              <!-- 위직스(Toast ui) 뷰어 -->
+              <input id="boardId" th:value="${beforeBoardInfo.getBoardId}" type="hidden">
+              <input id="beforeBoardContents" th:value="${beforeBoardInfo.getContents}" type="hidden">
+              <div id="editor"></div>
+              <!-- 수정 및 삭제 버튼 -->
+              <button type="button" class="btn btn-info m-2" onclick="modify()">게시물 수정하기</button>
+              <button type="button" class="btn btn-danger m-2" onclick="softDelete()">게시물 삭제하기</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 공통 풋터 -->
+      <div th:replace="/fragment/footer :: footer"></div>
+    </div>
+    <!-- Content End -->
+
+  </div>
+
+
+  <!-- 공통 스크립트 라이브러리 모음 -->
+  <th:block th:replace="/fragment/scripts :: scripts"></th:block>
+
+  <!-- 위지윅 관련 스크립트 -->
+  <script>
+
+      //Toast ui 관련한 스크립트 파트(시작)
+
+      var contents = $('#beforeBoardContents').val();
+
+      const Editor = toastui.Editor;
+
+      const editor = new Editor({
+        el: document.querySelector('#editor'),
+        height: '600px',
+        initialValue: contents,
+        initialEditType: 'wysiwyg',
+      });
+
+      //Toast ui 관련한 스크립트 파트(종료)
+
+
+
+      //게시물 수정하는 버튼을 클릭할 경우 발생하는 이벤트(시작)
+
+        function modify() {
+
+          var boardId = $('#boardId').val();  //변경 대상 게시물의 고유 Id 값
+          var title = $('#title').val();  //해당 게시물의 제목
+          var modifyContents = editor.getMarkdown();  //변경한 내용물
+
+          $.ajax({
+              url : '/updateContents',
+              type : 'post',
+              data : {
+                  boardId : boardId,
+                  title : title,
+                  contents : modifyContents
+              },
+              success : function(data) {
+                  alert('수정완료');
+                  location.replace(data);
+              },
+              error : function() {
+                  alert("error");
+              }
+          });
+        }
+
+      //게시물 수정하는 버튼을 클릭할 경우 발생하는 이벤트(종료)
+
+
+
+      //게시물 수정하는 버튼을 클릭할 경우 발생하는 이벤트(시작)
+
+      function softDelete() {
+
+        var boardId = $('#boardId').val();  //삭제 대상 게시물의 고유 Id 값
+
+        $.ajax({
+            url : '/softDeleteContents',
+            type : 'post',
+            data : {
+                boardId : boardId
+            },
+            success : function(data) {
+                alert('삭제완료');
+                location.replace(data);
+            },
+            error : function() {
+                alert("error");
+            }
+        });
+      }
+
+      //게시물 수정하는 버튼을 클릭할 경우 발생하는 이벤트(종료)
+  </script>
+
+</body>
+
+</html>
+
+<!--로그인 한 사용자가 새로은 게시물을 작성 혹은 게시물을 작성한 사용자만 접속하여 해당 게시물을 다시 수정해서 올릴수 있음-->

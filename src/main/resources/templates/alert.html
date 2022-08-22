@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+
+<!-- 공통 헤더 -->
+<head th:replace="/fragment/header :: header"></head>
+<body>
+
+<input type="hidden" id="msg" name="msg" th:value="${msg}">
+<!--<input type="hidden" id="url" name="url" th:value="${url}">-->
+
+<!-- 공통 스크립트 라이브러리 모음 -->
+<th:block th:replace="/fragment/scripts :: scripts"></th:block>
+
+<!-- 알림 페이지 로직 -->
+<script>
+    var msg = document.getElementById("msg").value;
+    //var url = document.getElementById("url").value;
+
+    alert(msg);
+    //window.location.replace(url);
+    history.back();
+</script>
+</body>
+</html>

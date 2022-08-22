@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+
+<!-- 공통 헤더 -->
+<head th:replace="/fragment/header :: header"></head>
+
+<body>
+    <div class="container-fluid position-relative d-flex p-0">
+
+        <!-- 공통 스피너 -->
+        <div th:replace="/fragment/spinner :: spinner"></div>
+
+
+        <!-- Sign Up Start -->
+        <div class="container-fluid">
+            <div class="row h-100 align-items-center justify-content-center" style="min-height: 100vh;">
+                <div class="col-12 col-sm-8 col-md-6 col-lg-5 col-xl-4">
+                    <div class="bg-secondary rounded p-4 p-sm-5 my-4 mx-3">
+                        <div class="d-flex align-items-center justify-content-between mb-3">
+                            <h3>회원가입</h3>
+                        </div>
+                        <!-- 회원가입 입력란 모음(시작) -->
+                        <form id="signupForm" name="signupForm" method="POST" th:action="@{/signupProcess}" th:object="${signupDto}">
+                            <!-- 메일 입력 -->
+                            <div class="form-floating mb-3">
+                                <input id="mail" name="mail" type="email" class="form-control" placeholder="name@example.com" required>
+                                <label for="mail">메일 주소</label>
+                            </div>
+                            <!-- 닉네임 입력 -->
+                            <div class="form-floating mb-3">
+                                <input id="nick" name="nick" type="text" class="form-control" placeholder="jhondoe" required>
+                                <label for="nick">사용자 닉네임</label>
+                            </div>
+                            <!-- 1차 암호 입력 -->
+                            <div class="form-floating mb-4">
+                                <input id="firstPass" name="firstPass" type="password" class="form-control" placeholder="Password" required>
+                                <label for="firstPass">비밀번호</label>
+                            </div>
+                            <!-- 2차 암호 입력 -->
+                            <div class="form-floating mb-4">
+                                <input id="secondPass" name="secondPass" type="password" class="form-control" placeholder="Password" required>
+                                <label for="secondPass">비밀번호 확인</label>
+                            </div>
+                            <!-- 회원가입 버튼 -->
+                            <button id="signupBtn" name="signupBtn" type="submit" class="btn btn-primary py-3 w-100 mb-4">회원가입</button>
+                        </form>
+                        <!-- 회원가입 입력란 모음(종료) -->
+                        <p class="text-center mb-0">계정이 이미 있다면? <a th:href="@{/login}">로그인</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Sign Up End -->
+    </div>
+
+    <!-- 공통 스크립트 라이브러리 모음 -->
+    <th:block th:replace="/fragment/scripts :: scripts"></th:block>
+
+</body>
+
+</html>
